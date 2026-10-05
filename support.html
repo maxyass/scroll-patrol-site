@@ -1,0 +1,663 @@
+<title>Scroll Patrol Support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Public+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --canvas:        #F6F6F3;
+    --surface:       #FFFFFF;
+    --sunken:        #ECECE7;
+    --hairline:      #E2E2DC;
+    --ink:           #14140F;
+    --ink-muted:     #6B6B63;
+    --ink-faint:     #A3A39B;
+    --accent:        #C8F74B;
+    --accent-ink:    #3F6309;
+    --accent-wash:   #EEFBC9;
+    --on-accent:     #0D1104;
+    --shadow:        0 1px 2px rgba(20, 20, 15, .05);
+  }
+
+  :root:not([data-theme="light"]) {
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --canvas:      #0A0A0C;
+      --surface:     #16161A;
+      --sunken:      #1C1C22;
+      --hairline:    #2A2A32;
+      --ink:         #F5F5F0;
+      --ink-muted:   #9A9A93;
+      --ink-faint:   #66666E;
+      --accent:      #C8F74B;
+      --accent-ink:  #C8F74B;
+      --accent-wash: #1E2609;
+      --on-accent:   #0D1104;
+      --shadow:      none;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --canvas:      #0A0A0C;
+    --surface:     #16161A;
+    --sunken:      #1C1C22;
+    --hairline:    #2A2A32;
+    --ink:         #F5F5F0;
+    --ink-muted:   #9A9A93;
+    --ink-faint:   #66666E;
+    --accent:      #C8F74B;
+    --accent-ink:  #C8F74B;
+    --accent-wash: #1E2609;
+    --on-accent:   #0D1104;
+    --shadow:      none;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- site header (shared with the home page) ---------- */
+
+  header.site {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .mark-tile {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    flex: none;
+  }
+
+  .mark-tile svg { width: 21px; height: 21px; }
+
+  .brand-name {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: -.015em;
+  }
+
+  .site-nav { display: flex; gap: 22px; }
+
+  .site-nav a {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    color: var(--ink-muted);
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+  }
+
+  .site-nav a:hover { color: var(--ink); }
+  .site-nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+  /* ---------- masthead ---------- */
+
+  header.masthead {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  h1 {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 6vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -.025em;
+    text-wrap: balance;
+    margin: 0 0 16px;
+  }
+
+  .lede {
+    font-size: 19px;
+    color: var(--ink-muted);
+    margin: 0 0 32px;
+    max-width: 34em;
+  }
+
+  /* The page has exactly two jobs because App Store Connect asks for exactly
+     two URLs, so the nav has exactly two entries. */
+  nav.jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  nav.jump a {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    color: var(--accent-ink);
+    background: var(--accent-wash);
+    padding: 9px 18px;
+    border-radius: 999px;
+    transition: background .15s ease;
+  }
+
+  nav.jump a:hover { background: var(--accent); color: var(--on-accent); }
+
+  /* ---------- sections ---------- */
+
+  section { padding: 56px 0 8px; scroll-margin-top: 24px; }
+
+  .eyebrow {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 8px;
+  }
+
+  h2 {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 4vw, 1.9rem);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    margin: 0 0 28px;
+  }
+
+  h3 {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: -.005em;
+    margin: 36px 0 8px;
+  }
+
+  p { margin: 0 0 16px; }
+
+  a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+  ul { margin: 0 0 16px; padding-left: 1.15em; }
+  li { margin-bottom: 8px; }
+
+  strong { font-weight: 600; color: var(--ink); }
+
+  /* ---------- faq ---------- */
+
+  .faq { margin-top: 8px; }
+
+  .faq details {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 0 20px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  .faq summary {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 16.5px;
+    cursor: pointer;
+    list-style: none;
+    padding: 17px 28px 17px 0;
+    position: relative;
+  }
+
+  .faq summary::-webkit-details-marker { display: none; }
+
+  .faq summary::after {
+    content: "";
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    width: 9px;
+    height: 9px;
+    border-right: 2px solid var(--ink-faint);
+    border-bottom: 2px solid var(--ink-faint);
+    transform: translateY(-70%) rotate(45deg);
+    transition: transform .18s ease;
+  }
+
+  .faq details[open] summary::after { transform: translateY(-25%) rotate(-135deg); }
+
+  .faq summary:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 3px; border-radius: 6px; }
+
+  .faq .body { padding: 0 0 18px; color: var(--ink-muted); }
+  .faq .body p:last-child, .faq .body ul:last-child { margin-bottom: 0; }
+
+  /* ---------- callouts ---------- */
+
+  .callout {
+    background: var(--accent-wash);
+    border-radius: 16px;
+    padding: 24px 26px;
+    margin: 0 0 8px;
+  }
+
+  .callout p { margin: 0; }
+  .callout .big {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 19px;
+    line-height: 1.35;
+    letter-spacing: -.01em;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+
+  .contact {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: var(--shadow);
+  }
+
+  .contact .label {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 4px;
+  }
+
+  .contact .addr {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: -.01em;
+    margin: 0 0 6px;
+    word-break: break-word;
+  }
+
+  /* ---------- data table ---------- */
+
+  .table-scroll { overflow-x: auto; margin: 0 0 16px; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 420px;
+    font-size: 15.5px;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 13px 14px 13px 0;
+    border-bottom: 1px solid var(--hairline);
+    vertical-align: top;
+  }
+
+  th {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom-color: var(--ink-faint);
+  }
+
+  td:last-child, th:last-child { padding-right: 0; }
+  td.what { font-weight: 500; color: var(--ink); white-space: nowrap; padding-right: 20px; }
+  td.where { color: var(--ink-muted); }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    margin-top: 72px;
+    padding: 32px 0 64px;
+    border-top: 1px solid var(--hairline);
+    font-size: 14.5px;
+    color: var(--ink-muted);
+  }
+
+  footer p { margin: 0 0 6px; }
+
+  @media (max-width: 520px) {
+    body { font-size: 16.5px; }
+    header.masthead { padding-top: 44px; }
+    section { padding-top: 44px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="site">
+    <a class="brand" href="index.html">
+      <span class="mark-tile" aria-hidden="true">
+        <!-- Open padlock with a rotation arrow: the same mark the app uses for
+             its Patrol tab and onboarding tile. -->
+        <svg viewBox="0 0 32 32" fill="none" stroke="#0D1104" stroke-width="2.6"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="7.5" y="14" width="13" height="11" rx="3"/>
+          <path d="M11 14v-3.2a3 3 0 0 1 6 0"/>
+          <path d="M22 11.5a9 9 0 0 1 2.8 6.8"/>
+          <path d="M22.3 18.9l2.6 2.2 2.1-2.7"/>
+        </svg>
+      </span>
+      <span class="brand-name">Scroll Patrol</span>
+    </a>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="support.html" aria-current="page">Support &amp; Privacy</a>
+    </nav>
+  </header>
+
+  <header class="masthead">
+    <h1>Support &amp; Privacy</h1>
+    <p class="lede">
+      Scroll Patrol puts the apps you lose hours to behind a workout. Everything it
+      needs to do that happens on your iPhone — there is no account, and nothing
+      leaves your device.
+    </p>
+
+    <nav class="jump" aria-label="Sections">
+      <a href="#support">Support</a>
+      <a href="#privacy">Privacy Policy</a>
+    </nav>
+  </header>
+
+  <!-- ============================ SUPPORT ============================ -->
+
+  <section id="support">
+    <p class="eyebrow">Help</p>
+    <h2>Getting Scroll Patrol working</h2>
+
+    <div class="faq">
+
+      <details open>
+        <summary>How does the app actually work?</summary>
+        <div class="body">
+          <p>
+            You choose which apps go on patrol. Those apps stay locked until you give
+            them minutes, and the only way to get minutes is to move — push-ups, squats,
+            jumping jacks and planks counted by the camera, or steps and walking distance
+            read from Apple Health.
+          </p>
+          <p>
+            Earned minutes land in a single balance. You decide which app gets them and
+            how many.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>The camera isn't counting my reps</summary>
+        <div class="body">
+          <p>Nearly always one of three things:</p>
+          <ul>
+            <li>
+              <strong>Framing.</strong> Stand your phone upright, leaning against
+              something, with your whole body in the shot. The app shows a framing
+              check before a set starts — wait for it to go green.
+            </li>
+            <li>
+              <strong>Direction.</strong> Push-ups and planks are counted with your body
+              pointed <em>towards</em> the camera, not side-on. Squats and jumping jacks
+              work facing the camera.
+            </li>
+            <li>
+              <strong>Light.</strong> Counting is done by reading your body's position,
+              so a dim room or a bright window directly behind you will cost you reps.
+            </li>
+          </ul>
+          <p>
+            Reps are also counted deliberately generously, so a rep that doesn't quite
+            reach full depth should still register.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>My steps aren't turning into minutes</summary>
+        <div class="body">
+          <p>
+            Open the Health app, go to your profile, then <strong>Apps &amp; Services →
+            Scroll Patrol</strong>, and make sure <strong>Steps</strong> and
+            <strong>Walking + Running Distance</strong> are both switched on.
+          </p>
+          <p>
+            Steps are counted from the point you last claimed, not from midnight, so the
+            number on the Cardio tab is what's waiting to be claimed rather than your
+            whole day's total.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Apps aren't locking</summary>
+        <div class="body">
+          <p>
+            Locking is built on Apple's Screen Time system, so Scroll Patrol needs that
+            permission granted. Check <strong>Settings → Screen Time</strong> on your
+            iPhone, and confirm the app still appears there.
+          </p>
+          <p>
+            If you denied the permission at first launch, iOS will not ask again — you
+            will need to delete and reinstall the app to be asked a second time.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>What happens to minutes I've already given an app?</summary>
+        <div class="body">
+          <p>
+            Adding more time to an app adds to whatever is left on it, rather than
+            replacing it. The allocation screen shows the running total before you
+            confirm.
+          </p>
+          <p>
+            Locking an app early <strong>burns</strong> any minutes still sitting on it —
+            they do not come back to your balance. The app asks you to confirm before it
+            does that.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>How do I delete my data?</summary>
+        <div class="body">
+          <p>
+            Delete the app. Everything Scroll Patrol stores lives on your device, inside
+            the app itself, so removing it removes the lot — balance, history, streak and
+            your patrolled-app list. There is no server copy to request, because there is
+            no server.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>What do I need to run it?</summary>
+        <div class="body">
+          <p>
+            An iPhone or iPad running <strong>iOS 17.6 or later</strong>. Camera-counted
+            exercises need a working front or rear camera; walking needs Apple Health.
+            No wearable, no account, no subscription.
+          </p>
+        </div>
+      </details>
+
+    </div>
+
+    <h3>Still stuck?</h3>
+    <div class="contact">
+      <p class="label">Email support</p>
+      <p class="addr"><a href="mailto:support@ouroborostechnologies.com">support@ouroborostechnologies.com</a></p>
+      <p style="margin:0;color:var(--ink-muted);font-size:15px">
+        Tell us your device, your iOS version and what you were doing. We read every
+        message and aim to reply within two business days.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================ PRIVACY ============================ -->
+
+  <section id="privacy">
+    <p class="eyebrow">Legal</p>
+    <h2>Privacy Policy</h2>
+
+    <div class="callout">
+      <p class="big">Scroll Patrol collects nothing.</p>
+      <p style="color:var(--ink-muted)">
+        No account, no analytics, no advertising, no tracking, and no third-party code of
+        any kind. The app has no networking in it — there is nowhere for your information
+        to go.
+      </p>
+    </div>
+
+    <h3>Information we collect</h3>
+    <p>
+      None. Scroll Patrol does not ask you to create an account or provide a name, email
+      address or phone number. It does not collect usage statistics, crash analytics,
+      advertising identifiers or device identifiers, and it does not track you across
+      other apps or websites.
+    </p>
+
+    <h3>Information the app uses on your device</h3>
+    <p>
+      To do its job, the app reads a few things on your iPhone. All of it stays there.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>What</th><th>Why, and what happens to it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="what">Camera</td>
+            <td class="where">
+              Used only while a workout is running, to count reps and time holds. Frames
+              are analysed in memory on your device using Apple's on-device Vision
+              framework and are discarded immediately. No video or image is ever
+              recorded, saved to your photo library, or transmitted.
+            </td>
+          </tr>
+          <tr>
+            <td class="what">Apple Health</td>
+            <td class="where">
+              Step count and walking + running distance are read, with your permission,
+              to convert walking into minutes. This is read-only — the app never writes
+              anything to Health — and the figures stay on your device.
+            </td>
+          </tr>
+          <tr>
+            <td class="what">Screen&nbsp;Time</td>
+            <td class="where">
+              Your choice of apps to patrol is handled by Apple's Family Controls system.
+              iOS hands the app opaque tokens rather than a readable list, and your
+              selection, along with the app names shown on lock screens and reminders,
+              is stored only on your device.
+            </td>
+          </tr>
+          <tr>
+            <td class="what">App data</td>
+            <td class="where">
+              Your balance, workout history, streak, reward rates and settings are saved
+              in the app's own private storage on your device.
+            </td>
+          </tr>
+          <tr>
+            <td class="what">Notifications</td>
+            <td class="where">
+              If you allow them, the app posts a local reminder before an app's time runs
+              out. These are generated on your device and are not sent through any
+              server.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Information we share</h3>
+    <p>
+      None, with anyone, for any purpose. We do not sell, rent or disclose personal
+      information, because we never receive any. There are no advertising networks,
+      analytics providers, or third-party software development kits embedded in the app.
+    </p>
+
+    <h3>Data retention and deletion</h3>
+    <p>
+      Because everything is stored locally, you are in full control of it. Deleting
+      Scroll Patrol from your device permanently removes all of its data. We hold no
+      backup and no copy, so there is nothing for you to request from us and nothing for
+      us to delete on your behalf.
+    </p>
+
+    <h3>Children</h3>
+    <p>
+      Scroll Patrol is not directed to children under 13 and does not knowingly collect
+      information from anyone, including children.
+    </p>
+
+    <h3>Your rights</h3>
+    <p>
+      Privacy laws including the GDPR and the CCPA give you rights to access, correct,
+      export and delete personal information held about you. We hold none, so these
+      rights are satisfied on your device: the data is already in your possession, and
+      deleting the app erases it.
+    </p>
+
+    <h3>Changes to this policy</h3>
+    <p>
+      If this policy changes, the updated version will be posted on this page with a new
+      effective date. Material changes will also be noted in the app's release notes on
+      the App Store.
+    </p>
+
+    <h3>Contact</h3>
+    <p>
+      Questions about this policy can go to
+      <a href="mailto:support@ouroborostechnologies.com">support@ouroborostechnologies.com</a>.
+    </p>
+  </section>
+
+  <footer>
+    <p><strong>Scroll Patrol</strong> — Ouroboros Technologies, LLC</p>
+    <p>Privacy policy effective 5 October 2026. Last updated 5 October 2026.</p>
+  </footer>
+
+</div>
