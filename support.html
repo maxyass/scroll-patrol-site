@@ -1,3 +1,5 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Scroll Patrol Support</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -351,10 +353,48 @@
 
   footer p { margin: 0 0 6px; }
 
-  @media (max-width: 520px) {
+  @media (max-width: 680px) {
     body { font-size: 16.5px; }
-    header.masthead { padding-top: 44px; }
+    .wrap { padding: 0 18px; }
+    header.masthead { padding-top: 40px; }
     section { padding-top: 44px; }
+
+    /* A two-column table cannot work at this width. Sideways scrolling is
+       bad anywhere and worse in a privacy policy, where someone is trying to
+       read every line — and the nowrap label column was being clipped, so
+       "Screen Time" arrived as "Screen T". Each row becomes a labelled
+       block instead: same information, same order, no scrolling. */
+    .table-scroll { overflow-x: visible; }
+
+    table, thead, tbody, tr, th, td { display: block; width: 100%; }
+    thead { display: none; }                 /* the labels carry the headings */
+    table { min-width: 0; }
+
+    tr {
+      border-bottom: 1px solid var(--hairline);
+      padding: 18px 0;
+    }
+    tr:last-child { border-bottom: none; }
+
+    td { border: none; padding: 0; }
+
+    td.what {
+      white-space: normal;
+      padding: 0 0 6px;
+      font-family: Archivo, system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    td.where { color: var(--ink-muted); }
+
+    .faq details { padding: 0 16px; }
+    .faq summary { font-size: 16px; padding-right: 24px; }
+    .callout, .contact { padding: 20px 18px; }
+    .contact .addr { font-size: 17px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
