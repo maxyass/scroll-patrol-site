@@ -268,6 +268,52 @@
 
   .feature p { margin: 0; color: var(--ink-muted); font-size: 15.5px; line-height: 1.55; }
 
+  /* ---------- pricing ---------- */
+
+  .prices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  .price {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    padding: 26px 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .price-best { border-color: var(--accent-ink); border-width: 2px; }
+
+  .price-flag {
+    position: absolute; top: -11px; left: 24px;
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    background: var(--accent); color: var(--on-accent);
+    padding: 4px 10px; border-radius: 999px;
+  }
+
+  .price-name {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 600; font-size: 13px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-faint); margin: 0 0 8px;
+  }
+
+  .price-amount {
+    font-family: Archivo, system-ui, sans-serif;
+    font-weight: 800; font-size: 2.1rem; letter-spacing: -.03em;
+    color: var(--ink); margin: 0 0 8px; line-height: 1;
+  }
+
+  .price-amount span {
+    font-size: 1rem; font-weight: 600; color: var(--ink-muted); letter-spacing: 0;
+  }
+
+  .price-note { margin: 0; font-size: 15px; color: var(--ink-muted); }
+
+  .price-small {
+    margin: 22px 0 0; font-size: 14px; line-height: 1.6;
+    color: var(--ink-faint); max-width: 46em;
+  }
+
   /* ---------- privacy strip ---------- */
 
   .strip {
@@ -299,6 +345,7 @@
   @media (max-width: 760px) {
     .shots { grid-template-columns: 1fr; max-width: 320px; margin: 0 auto; gap: 34px; }
     .features { grid-template-columns: 1fr; }
+    .prices { grid-template-columns: 1fr; gap: 20px; }
     .strip { padding: 34px 26px; border-radius: 20px; }
     .hero { padding-top: 48px; }
     section { padding-top: 56px; }
@@ -326,6 +373,7 @@
     </a>
     <nav class="site-nav">
       <a href="index.html" aria-current="page">Home</a>
+      <a href="#pricing">Pricing</a>
       <a href="support.html">Support &amp; Privacy</a>
     </nav>
   </header>
@@ -342,7 +390,7 @@
       <a class="btn btn-primary" href="https://apps.apple.com/app/id6756547836">Download on the App Store</a>
       <a class="btn btn-quiet" href="support.html">Support &amp; Privacy</a>
     </div>
-    <p class="req">Requires iOS 17.6 or later. No account, no subscription.</p>
+    <p class="req">Seven days free, then $2.99 a month. Requires iOS 17.6 or later. No account, no sign-up quiz.</p>
   </div>
 
   <div class="shots">
@@ -478,6 +526,43 @@
       </div>
 
     </div>
+  </section>
+
+  <section id="pricing">
+    <div class="narrow">
+      <h2>A third of what this usually costs</h2>
+      <p class="sub">
+        Apps in this category routinely ask $10&ndash;15 a month. Every plan below
+        includes everything &mdash; there is no higher tier, and nothing is held back.
+      </p>
+    </div>
+
+    <div class="prices">
+      <div class="price">
+        <p class="price-name">Monthly</p>
+        <p class="price-amount">$2.99<span>/mo</span></p>
+        <p class="price-note">Seven days free first.</p>
+      </div>
+      <div class="price price-best">
+        <span class="price-flag">Best value</span>
+        <p class="price-name">Yearly</p>
+        <p class="price-amount">$24.99<span>/yr</span></p>
+        <p class="price-note">Seven days free. Works out at $2.08 a month.</p>
+      </div>
+      <div class="price">
+        <p class="price-name">Lifetime</p>
+        <p class="price-amount">$49.99<span> once</span></p>
+        <p class="price-note">Pay once. Nothing renews, ever.</p>
+      </div>
+    </div>
+
+    <p class="price-small">
+      Subscriptions renew automatically unless cancelled at least 24 hours before the
+      period ends. Cancel in Settings inside the app. If your subscription ends, every
+      lock comes off immediately &mdash; your apps are yours, and we will not hold them
+      hostage. Your patrolled apps and settings are kept, so resubscribing picks up
+      where you left off.
+    </p>
   </section>
 
   <div class="strip">
